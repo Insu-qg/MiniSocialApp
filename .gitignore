@@ -1,0 +1,44 @@
+# Build output
+bin/
+obj/
+*.dll
+
+# User-specific files & IDE settings
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.idea/
+.vscode/
+
+# Logs, cache, temp
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# Rider/ReSharper
+_ReSharper*/
+*.DotSettings.user
+
+# Local database files
+*.db
+MiniSocialApp.db
+
+# NuGet packages
+*.nupkg
+packages/
+.nuget/
+
+# Publish/deployment output
+publish/
+*.Publish.xml
+
+# Node/npm (if used)
+node_modules/
+
+# Ignore migrations snapshot if you want to regenerate on each clone (optionnel)
+#MiniSocialApp/Migrations/AppDbContextModelSnapshot.cs
