@@ -6,6 +6,8 @@ using System.Windows;
 using System.Windows.Input;
 using MiniSocialApp.Data;
 using MiniSocialApp.Security;
+using MiniSocialApp.Views;
+
 
 namespace MiniSocialApp.ViewModels;
 
@@ -46,8 +48,17 @@ public class LoginViewModel : INotifyPropertyChanged
             {
                 CurrentSession = new SessionToken(user.Username);
                 MessageBox.Show($"Bienvenue {user.Username} !\nToken : {CurrentSession.Token}");
-                
-                // TODO : ouvrir fenêtre principale (fil d’actualité)
+
+                // Ouvrir fil d'actualité
+                var feedWindow = new FeedView(CurrentSession);
+                feedWindow.DataContext = new FeedViewModel(CurrentSession);
+                feedWindow.Show();
+
+                // Fermer Login
+                Application.Current.Windows
+                    .OfType<Window>()
+                    .SingleOrDefault(w => w.DataContext == this)?
+                    .Close();
             }
             else
             {
