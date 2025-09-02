@@ -41,15 +41,17 @@ public class FeedViewModel : INotifyPropertyChanged
     {
         using var db = new AppDbContext();
         Posts.Clear();
+
+        var user = db.Users.FirstOrDefault(u => u.Username == _session.Username);
+
         var posts = db.Posts
-            .OrderByDescending(p => p.CreatedAt)
+            .OrderBy(p => p.CreatedAt) // Plus ancien en haut, plus récent en bas
             .Select(p => new
             {
                 p.Id,
                 p.Content,
                 Username = p.User.Username,
                 p.CreatedAt,
-                p.Likes, // Ajoute cette ligne
                 Comments = p.Comments.Select(c => new CommentDisplay
                 {
                     Content = c.Content,
@@ -60,13 +62,15 @@ public class FeedViewModel : INotifyPropertyChanged
 
         foreach (var p in posts)
         {
+            var postId = p.Id;
             Posts.Add(new PostDisplay
             {
-                Id = p.Id,
+                Id = postId,
                 Content = p.Content,
                 Username = p.Username,
                 CreatedAt = p.CreatedAt,
-                Likes = p.Likes, // Ajoute cette ligne
+                Likes = db.PostLikes.Count(pl => pl.PostId == postId),
+                HasLiked = user != null && db.PostLikes.Any(pl => pl.PostId == postId && pl.UserId == user.Id),
                 Comments = new ObservableCollection<CommentDisplay>(p.Comments)
             });
         }
@@ -118,14 +122,19 @@ public class FeedViewModel : INotifyPropertyChanged
         if (user == null || post == null)
             return;
 
-        // Vérifie si l'utilisateur a déjà liké ce post
-        bool alreadyLiked = db.PostLikes.Any(pl => pl.PostId == post.Id && pl.UserId == user.Id);
-        if (alreadyLiked)
-            return;
+        var existingLike = db.PostLikes.FirstOrDefault(pl => pl.PostId == post.Id && pl.UserId == user.Id);
 
-        // Ajoute le like
-        db.PostLikes.Add(new PostLike { PostId = post.Id, UserId = user.Id });
-        post.Likes++; // Si tu veux garder le compteur pour la perf
+        if (existingLike != null)
+        {
+            // L'utilisateur a déjà liké : on retire le like
+            db.PostLikes.Remove(existingLike);
+        }
+        else
+        {
+            // L'utilisateur n'a pas liké : on ajoute le like
+            db.PostLikes.Add(new PostLike { PostId = post.Id, UserId = user.Id });
+        }
+
         db.SaveChanges();
         LoadPosts();
     }
@@ -173,6 +182,7 @@ public class PostDisplay
     public string Content { get; set; } = "";
     public DateTime CreatedAt { get; set; }
     public int Likes { get; set; }
+    public bool HasLiked { get; set; } // Ajoute cette propriété
     public ObservableCollection<CommentDisplay> Comments { get; set; } = new();
 }
 

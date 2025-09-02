@@ -22,7 +22,7 @@
         </Grid.RowDefinitions>
 
         <!-- Liste des posts -->
-        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer x:Name="FeedScrollViewer" Grid.Row="0" VerticalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding Posts}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -63,7 +63,21 @@
                                             Padding="0"
                                             FontWeight="Bold"
                                             Command="{Binding DataContext.LikePostCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                            CommandParameter="{Binding}" Margin="0,0,8,0"/>
+                                            CommandParameter="{Binding}"
+                                            Margin="0,0,8,0">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Background" Value="#2e2e3e"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding HasLiked}" Value="True">
+                                                        <Setter Property="Background" Value="#50c878"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
                                     <TextBlock Text="{Binding Likes}"
                                                VerticalAlignment="Center"
                                                Foreground="White"
